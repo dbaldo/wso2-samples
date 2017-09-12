@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy name="CabReservationService" startOnLoad="true" transports="https http" xmlns="http://ws.apache.org/ns/synapse">
+    <target>
+        <inSequence>
+            <payloadFactory media-type="xml">
+                <format>
+                    <cabs:findCab xmlns:cabs="http://cabs.services.esb.wso2.packt.com">
+                        <cabs:from>$1</cabs:from>
+                        <cabs:to>$2</cabs:to>
+                    </cabs:findCab>
+                </format>
+                <args>
+                    <arg evaluator="xml" expression="//cabs:findBestCabDeal/cabs:from" xmlns:cabs="http://cabs.services.esb.wso2.packt.com"/>
+                    <arg evaluator="xml" expression="//cabs:findBestCabDeal/cabs:to" xmlns:cabs="http://cabs.services.esb.wso2.packt.com"/>
+                </args>
+            </payloadFactory>
+            <clone>
+                <target>
+                    <sequence>
+                        <send>
+                            <endpoint>
+                                <address uri="http://localhost:8000/axis2/services/KangarooCabService"/>
+                            </endpoint>
+                        </send>
+                    </sequence>
+                </target>
+                <target>
+                    <sequence>
+                        <send>
+                            <endpoint>
+                                <address uri="http://localhost:8000/axis2/services/NewYorkCityCabService"/>
+                            </endpoint>
+                        </send>
+                    </sequence>
+                </target>
+                <target>
+                    <sequence>
+                        <send>
+                            <endpoint>
+                                <address uri="http://localhost:8000/axis2/services/YellowCabService"/>
+                            </endpoint>
+                        </send>
+                    </sequence>
+                </target>
+            </clone>
+        </inSequence>
+        <outSequence>
+            <aggregate>
+                <completeCondition>
+                    <messageCount max="-1" min="3"/>
+                </completeCondition>
+                <onComplete expression="//ns:return" xmlns:ns="http://cabs.services.esb.wso2.packt.com" xmlns:xsd="http://cabs.services.esb.wso2.packt.com/xsd">
+                    <log level="full"/>
+                    <enrich>
+                        <source clone="true" xpath="//ns:return[not(preceding-sibling::ns:return/xsd:cabFare &lt;= xsd:cabFare) and not(following-sibling::ns:return/xsd:cabFare &lt; xsd:cabFare)]"/>
+                        <target type="body"/>
+                    </enrich>
+                    <payloadFactory media-type="xml">
+                        <format>
+                            <ns:findBestCabDealResponse>
+                                <ns:return>$1</ns:return>
+                            </ns:findBestCabDealResponse>
+                        </format>
+                        <args>
+                            <arg evaluator="xml" expression="(//ns:return/xsd:cabService)[1]"/>
+                        </args>
+                    </payloadFactory>
+                    <send/>
+                </onComplete>
+            </aggregate>
+        </outSequence>
+        <faultSequence/>
+    </target>
+    <publishWSDL>
+        <wsdl:definitions targetNamespace="http://cabs.services.esb.wso2.packt.com" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ns="http://cabs.services.esb.wso2.packt.com" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+            <wsdl:documentation>CabReservationService</wsdl:documentation>
+            <wsdl:types>
+                <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://cabs.services.esb.wso2.packt.com">
+                    <xs:element name="findBestCabDeal">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element minOccurs="0" name="from" nillable="true" type="xs:string"/>
+                                <xs:element minOccurs="0" name="to" nillable="true" type="xs:string"/>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="findBestCabDealResponse">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:schema>
+            </wsdl:types>
+            <wsdl:message name="findBestCabDealRequest">
+                <wsdl:part element="ns:findBestCabDeal" name="parameters"/>
+            </wsdl:message>
+            <wsdl:message name="findBestCabDealResponse">
+                <wsdl:part element="ns:findBestCabDealResponse" name="parameters"/>
+            </wsdl:message>
+            <wsdl:portType name="CabReservationServicePortType">
+                <wsdl:operation name="findBestCabDeal">
+                    <wsdl:input message="ns:findBestCabDealRequest" wsaw:Action="urn:findBestCabDeal"/>
+                    <wsdl:output message="ns:findBestCabDealResponse" wsaw:Action="urn:findBestCabDealResponse"/>
+                </wsdl:operation>
+            </wsdl:portType>
+            <wsdl:binding name="CabReservationServiceSoap11Binding" type="ns:CabReservationServicePortType">
+                <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+                <wsdl:operation name="findBestCabDeal">
+                    <soap:operation soapAction="urn:findBestCabDeal" style="document"/>
+                    <wsdl:input>
+                        <soap:body use="literal"/>
+                    </wsdl:input>
+                    <wsdl:output>
+                        <soap:body use="literal"/>
+                    </wsdl:output>
+                </wsdl:operation>
+            </wsdl:binding>
+            <wsdl:binding name="CabReservationServiceSoap12Binding" type="ns:CabReservationServicePortType">
+                <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+                <wsdl:operation name="findBestCabDeal">
+                    <soap12:operation soapAction="urn:findBestCabDeal" style="document"/>
+                    <wsdl:input>
+                        <soap12:body use="literal"/>
+                    </wsdl:input>
+                    <wsdl:output>
+                        <soap12:body use="literal"/>
+                    </wsdl:output>
+                </wsdl:operation>
+            </wsdl:binding>
+            <wsdl:binding name="CabReservationServiceHttpBinding" type="ns:CabReservationServicePortType">
+                <http:binding verb="POST"/>
+                <wsdl:operation name="findBestCabDeal">
+                    <http:operation location="findBestCabDeal"/>
+                    <wsdl:input>
+                        <mime:content part="parameters" type="text/xml"/>
+                    </wsdl:input>
+                    <wsdl:output>
+                        <mime:content part="parameters" type="text/xml"/>
+                    </wsdl:output>
+                </wsdl:operation>
+            </wsdl:binding>
+            <wsdl:service name="CabReservationService">
+                <wsdl:port binding="ns:CabReservationServiceSoap11Binding" name="CabReservationServiceHttpSoap11Endpoint">
+                    <soap:address location="http://juvenal-pc:8280/services/CabReservationService.CabReservationServiceHttpSoap11Endpoint"/>
+                </wsdl:port>
+                <wsdl:port binding="ns:CabReservationServiceSoap11Binding" name="CabReservationServiceHttpsSoap11Endpoint">
+                    <soap:address location="https://juvenal-pc:8243/services/CabReservationService.CabReservationServiceHttpsSoap11Endpoint"/>
+                </wsdl:port>
+                <wsdl:port binding="ns:CabReservationServiceSoap12Binding" name="CabReservationServiceHttpSoap12Endpoint">
+                    <soap12:address location="http://juvenal-pc:8280/services/CabReservationService.CabReservationServiceHttpSoap12Endpoint"/>
+                </wsdl:port>
+                <wsdl:port binding="ns:CabReservationServiceSoap12Binding" name="CabReservationServiceHttpsSoap12Endpoint">
+                    <soap12:address location="https://juvenal-pc:8243/services/CabReservationService.CabReservationServiceHttpsSoap12Endpoint"/>
+                </wsdl:port>
+                <wsdl:port binding="ns:CabReservationServiceHttpBinding" name="CabReservationServiceHttpEndpoint">
+                    <http:address location="http://juvenal-pc:8280/services/CabReservationService.CabReservationServiceHttpEndpoint"/>
+                </wsdl:port>
+                <wsdl:port binding="ns:CabReservationServiceHttpBinding" name="CabReservationServiceHttpsEndpoint">
+                    <http:address location="https://juvenal-pc:8243/services/CabReservationService.CabReservationServiceHttpsEndpoint"/>
+                </wsdl:port>
+            </wsdl:service>
+        </wsdl:definitions>
+    </publishWSDL>
+</proxy>

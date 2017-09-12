@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?><artifacts>
+    <artifact name="CreditCardPaymentService" groupId="com.example.Sample2.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/CreditCardPaymentService.xml</file>
+    </artifact>
+    <artifact name="VISA" groupId="com.example.Sample2.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/VISA.xml</file>
+    </artifact>
+    <artifact name="AMEX" groupId="com.example.Sample2.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/AMEX.xml</file>
+    </artifact>
+    <artifact name="AMEX" version="1.0.0" type="synapse/local-entry" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/local-entries/AMEX.xml</file>
+    </artifact>
+    <artifact name="VISA" version="1.0.0" type="synapse/local-entry" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/local-entries/VISA.xml</file>
+    </artifact>
+</artifacts>

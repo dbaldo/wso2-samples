@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="VISA" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <payloadFactory media-type="xml">
+        <format>
+            <vps:doPayment xmlns:vps="http://vps.services.esb.wso2.packt.com" xmlns:xsd="http://vps.services.esb.wso2.packt.com/xsd">
+                <vps:paymentInfo>
+                    <xsd:billingAddress>$1</xsd:billingAddress>
+                    <xsd:cardHolderName>$2</xsd:cardHolderName>
+                    <xsd:creditCardNumber>$3</xsd:creditCardNumber>
+                    <xsd:expiryDate>$4</xsd:expiryDate>
+                    <xsd:paymentAmount>$5</xsd:paymentAmount>
+                </vps:paymentInfo>
+            </vps:doPayment>
+        </format>
+        <args>
+            <arg evaluator="xml" expression="//m0:doPayment/m0:paymentInfo/xsd:billingAddress" xmlns:m0="http://ccps.services.esb.wso2.packt.com" xmlns:xsd="http://ccps.services.esb.wso2.packt.com/xsd"/>
+            <arg evaluator="xml" expression="//m0:doPayment/m0:paymentInfo/xsd:cardHolderName" xmlns:m0="http://ccps.services.esb.wso2.packt.com" xmlns:xsd="http://ccps.services.esb.wso2.packt.com/xsd"/>
+            <arg evaluator="xml" expression="//m0:doPayment/m0:paymentInfo/xsd:creditCardNumber" xmlns:m0="http://ccps.services.esb.wso2.packt.com" xmlns:xsd="http://ccps.services.esb.wso2.packt.com/xsd"/>
+            <arg evaluator="xml" expression="//m0:doPayment/m0:paymentInfo/xsd:expiryDate" xmlns:m0="http://ccps.services.esb.wso2.packt.com" xmlns:xsd="http://ccps.services.esb.wso2.packt.com/xsd"/>
+            <arg evaluator="xml" expression="//m0:doPayment/m0:paymentInfo/xsd:paymentAmount" xmlns:m0="http://ccps.services.esb.wso2.packt.com" xmlns:xsd="http://ccps.services.esb.wso2.packt.com/xsd"/>
+        </args>
+    </payloadFactory>
+</sequence>
